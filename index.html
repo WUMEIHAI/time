@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间计算器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        button {
+            width: 48%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button.calculate {
+            background: linear-gradient(135deg, #007BFF, #0056b3);
+        }
+        button.reset {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+        }
+        #currentTime {
+            text-align: center;
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>时间计算器</h1>
+        <div id="currentTime" class="result"></div>
+        <div class="form-group">
+            <label for="operation">选择操作:</label>
+            <select id="operation">
+                <option value="add">增加</option>
+                <option value="subtract">减少</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="days">天:</label>
+            <input type="text" id="days" placeholder="0" onfocus="clearPlaceholder(this)" onblur="resetPlaceholder(this)" oninput="validateInput('days')">
+            <div class="error-message" id="days-error">请输入正整数。</div>
+        </div>
+        <div class="form-group">
+            <label for="hours">小时:</label>
+            <input type="text" id="hours" placeholder="0" onfocus="clearPlaceholder(this)" onblur="resetPlaceholder(this)" oninput="validateInput('hours')">
+            <div class="error-message" id="hours-error">请输入正整数。</div>
+        </div>
+        <div class="form-group">
+            <label for="minutes">分钟:</label>
+            <input type="text" id="minutes" placeholder="0" onfocus="clearPlaceholder(this)" onblur="resetPlaceholder(this)" oninput="validateInput('minutes')">
+            <div class="error-message" id="minutes-error">请输入正整数。</div>
+        </div>
+        <div class="form-group">
+            <label for="seconds">秒:</label>
+            <input type="text" id="seconds" placeholder="0" onfocus="clearPlaceholder(this)" onblur="resetPlaceholder(this)" oninput="validateInput('seconds')">
+            <div class="error-message" id="seconds-error">请输入正整数。</div>
+        </div>
+        <div class="buttons">
+            <button class="calculate" onclick="calculateTime()">计算</button>
+            <button class="reset" onclick="resetInputs()">重置</button>
+        </div>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // 更新当前时间
+        function updateCurrentTime() {
+            const now = new Date();
+            document.getElementById("currentTime").innerText = `当前时间: ${now.toLocaleString()}`;
+        }
+
+        // 页面加载时更新当前时间，并设置定时器
+        window.onload = function() {
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+        };
+
+        // 清除输入框中的占位符
+        function clearPlaceholder(input) {
+            if (input.value === '') {
+                input.placeholder = '';
+            }
+        }
+
+        // 恢复输入框中的占位符
+        function resetPlaceholder(input) {
+            if (input.value === '') {
+                input.placeholder = '0';
+            }
+        }
+
+        // 验证输入是否为正整数
+        function validateInput(fieldId) {
+            const input = document.getElementById(fieldId);
+            const errorMessage = document.getElementById(`${fieldId}-error`);
+            const value = input.value;
+
+            // 使用正则表达式验证是否为正整数
+            if (!/^\d*$/.test(value)) {
+                errorMessage.style.display = 'block';
+                input.value = value.replace(/[^0-9]/g, ''); // 删除非法字符
+            } else {
+                errorMessage.style.display = 'none';
+            }
+        }
+
+        // 计算时间偏移
+        function calculateTime() {
+            const now = new Date();
+            const operation = document.getElementById('operation').value;
+            const days = parseInt(document.getElementById('days').value) || 0;
+            const hours = parseInt(document.getElementById('hours').value) || 0;
+            const minutes = parseInt(document.getElementById('minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('seconds').value) || 0;
+            let totalMilliseconds = (days * 24 * 60 * 60 * 1000) +
+                                    (hours * 60 * 60 * 1000) +
+                                    (minutes * 60 * 1000) +
+                                    (seconds * 1000);
+            if (operation === 'subtract') {
+                totalMilliseconds = -totalMilliseconds;
+            }
+            const newTime = new Date(now.getTime() + totalMilliseconds);
+            document.getElementById('result').innerText = `计算后的时间: ${newTime.toLocaleString()}`;
+        }
+
+        // 重置输入框
+        function resetInputs() {
+            const inputs = ['days', 'hours', 'minutes', 'seconds'];
+            inputs.forEach(id => {
+                const input = document.getElementById(id);
+                input.value = '';
+                input.placeholder = '0';
+                document.getElementById(`${id}-error`).style.display = 'none';
+            });
+            document.getElementById('operation').value = 'add';
+            document.getElementById('result').innerText = '';
+        }
+    </script>
+</body>
+</html>
